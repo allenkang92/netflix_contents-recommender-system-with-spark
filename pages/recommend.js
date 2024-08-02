@@ -1,8 +1,51 @@
 const API_BASE_URL = 'http://localhost:8000';
+const OLLAMA_URL = 'http://43.203.223.48:5000';
 
 const genres = ['action', 'animation', 'comedy', 'crime', 'documentation', 'drama', 'european', 'family', 'fantasy', 'history', 'horror', 'music', 'reality', 'romance', 'scifi', 'sport', 'thriller', 'war', 'western'];
 let positiveGenres = [];
 let negativeGenres = [];
+
+// Ollama 챗봇 기능
+const chatMessages = document.getElementById('chat-messages');
+const userInput = document.getElementById('user-input');
+const sendButton = document.getElementById('send-button');
+
+async function sendMessage() {
+    const message = userInput.value;
+    if (!message) return; // 메시지가 없으면 아무것도 하지 않음
+
+    addMessage(message, "user");
+
+    try {
+        const response = await fetch(`${OLLAMA_URL}/api/generate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ model: "llama3", prompt: message })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        addMessage(data.response, "bot");
+    } catch (error) {
+        console.error('Error:', error);
+        addMessage("Error: Could not get response from Ollama", "bot");
+    }
+
+    userInput.value = ''; // 입력 필드 비우기
+}
+
+function addMessage(message, sender) {
+    const messageElement = document.createElement('div');
+    messageElement.textContent = message;
+    messageElement.className = sender + '-message';
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
 function initializeGenreButtons() {
     createGenreButtons('positive-buttons', positiveGenres, 'positive');
@@ -49,19 +92,12 @@ async function getRecommendations(positiveGenres, negativeGenres) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                positive: positiveGenres,
-                negative: negativeGenres
-            }),
+            body: JSON.stringify({ positive: positiveGenres, negative: negativeGenres })
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const recommendedMovies = await response.json();
-        // if (recommendedMovies.length === 0) {
-        //     throw new Error('No movies found matching your preferences.');
-        // }
-        return recommendedMovies;
+        return await response.json();
     } catch (error) {
         console.error("Could not fetch recommendations:", error);
         throw error;
@@ -150,7 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             showLoading();
-            await sendSelectedGenres(); 
             const recommendedMovies = await getRecommendations(positiveGenres, negativeGenres);
             displayMovies(recommendedMovies);
             modal.style.display = 'none';
@@ -161,33 +196,14 @@ document.addEventListener('DOMContentLoaded', () => {
             hideLoading();
         }
     });
-});
 
-// sendSelectedGenres 
-async function sendSelectedGenres() {
-    const data = {
-        positive: positiveGenres,
-        negative: negativeGenres
-    };
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/recommend`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        });
-        if (!response.ok) {
-            throw new Error('Failed to save preferences');
+    sendButton.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
         }
-        const result = await response.json();
-        console.log('Success:', result);
-    } catch (error) {
-        console.error('Error:', error);
-        throw new Error("Failed to save preferences. Please try again.");
-    }
-}
+    });
+});
 
 function showLoading() {
     const loadingElement = document.createElement('div');
