@@ -5,47 +5,7 @@
 
 ## 시스템 아키텍처
 
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
-<rect width="100%" height="100%" fill="#f0f0f0"/>
-    
-    <!-- Frontend -->
-    <rect x="300" y="20" width="200" height="60" fill="#ff9999" stroke="#000" stroke-width="2"/>
-    <text x="400" y="55" font-family="Arial" font-size="14" text-anchor="middle">프론트엔드 (HTML/JS/CSS)</text>
-    
-    <!-- Instance 1 -->
-    <rect x="50" y="150" width="200" height="200" fill="#99ccff" stroke="#000" stroke-width="2"/>
-    <text x="150" y="175" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">인스턴스 1 (분석 서버)</text>
-    <text x="150" y="205" font-family="Arial" font-size="14" text-anchor="middle">Kafka</text>
-    <text x="150" y="230" font-family="Arial" font-size="14" text-anchor="middle">Spark</text>
-    <text x="150" y="255" font-family="Arial" font-size="14" text-anchor="middle">Jupyter Lab</text>
-    
-    <!-- Instance 2 -->
-    <rect x="300" y="150" width="200" height="200" fill="#99ff99" stroke="#000" stroke-width="2"/>
-    <text x="400" y="175" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">인스턴스 2 (애플리케이션)</text>
-    <text x="400" y="205" font-family="Arial" font-size="14" text-anchor="middle">Kafka</text>
-    <text x="400" y="230" font-family="Arial" font-size="14" text-anchor="middle">FastAPI 백엔드</text>
-    <text x="400" y="255" font-family="Arial" font-size="14" text-anchor="middle">PostgreSQL</text>
-    
-    <!-- Instance 3 -->
-    <rect x="550" y="150" width="200" height="200" fill="#ffcc99" stroke="#000" stroke-width="2"/>
-    <text x="650" y="175" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">인스턴스 3 (모니터링)</text>
-    <text x="650" y="205" font-family="Arial" font-size="14" text-anchor="middle">Kafka</text>
-    <text x="650" y="230" font-family="Arial" font-size="14" text-anchor="middle">Logstash</text>
-    <text x="650" y="255" font-family="Arial" font-size="14" text-anchor="middle">Elasticsearch</text>
-    <text x="650" y="280" font-family="Arial" font-size="14" text-anchor="middle">Kibana</text>
-    
-    <!-- Connections -->
-    <line x1="400" y1="80" x2="400" y2="150" stroke="#000" stroke-width="2" marker-end="url(#arrowhead)"/>
-    <line x1="250" y1="250" x2="300" y2="250" stroke="#000" stroke-width="2" marker-end="url(#arrowhead)"/>
-    <line x1="500" y1="250" x2="550" y2="250" stroke="#000" stroke-width="2" marker-end="url(#arrowhead)"/>
-    
-    <!-- Arrowhead definition -->
-    <defs>
-        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
-            <polygon points="0 0, 10 3.5, 0 7" />
-        </marker>
-    </defs>
-</svg>
+![시스템 아키텍처](./netflix-recommendation-architecture.svg)
 
 ## 주요 기능
 - 사용자 장르 선호도 기반 영화 추천
@@ -62,6 +22,42 @@
 - 데이터 처리: PySpark, Pandas
 - 분석 도구: Jupyter Lab
 - 모니터링: Elasticsearch, Logstash, Kibana (ELK 스택)
+
+## 프로젝트 구조
+```
+.
+├── 개발 관련
+│   ├── 개발환경설치및실행.md
+│   └── mermaid.md
+├── backend
+│   ├── spark
+│   │   ├── recommendation_engine.py
+│   │   ├── streaming_to_postgres.py
+│   │   ├── imdb_movies_shows.csv
+│   │   └── netflix_titles.csv
+│   ├── kafka
+│   └── modify_data
+├── pages
+│   ├── app.js
+│   ├── app.py
+│   ├── exam_file.svg
+│   ├── Index.html
+│   ├── ollama_api.py
+│   ├── pages_explain.md
+│   ├── recommend.js
+│   ├── recommendation-settings.html
+│   ├── return_express.js
+│   ├── top-20.html
+│   ├── top-20.js
+│   └── unify.css
+├── parquet_data
+├── .gitignore
+├── netflix-recommendation-architecture.svg
+├── README.md
+└── requirements.txt
+```
+
+## 설치 및 설정 가이드
 
 ## 인스턴스 구성
 
@@ -81,6 +77,7 @@
 - Logstash: 로그 처리 및 변환
 - Elasticsearch: 로그 및 메트릭 저장 및 검색
 - Kibana: 데이터 시각화 및 모니터링 대시보드
+- llama 3.1 : 챗봇
 
 ## 의존성
 
@@ -123,8 +120,6 @@ black==23.12.1
 flake8==7.0.0
 ```
 
-[이하 내용 생략...]
-
 ## 설치 및 설정 가이드
 
 각 인스턴스별 설정 방법은 다음과 같습니다:
@@ -163,10 +158,8 @@ flake8==7.0.0
 - 테스트: Pytest를 사용한 단위 테스트 및 통합 테스트 구현
 - 문서화: 각 주요 함수 및 클래스에 대한 문서 문자열(docstring) 작성
 
-## 기여 방법
-
-프로젝트에 기여하고 싶으신 분들은 CONTRIBUTING.md 파일을 참조해 주세요.
-
-## 라이센스
-
-이 프로젝트는 MIT 라이센스 하에 배포됩니다. 자세한 내용은 LICENSE 파일을 참조하세요.
+## 실행 화면
+![index화면](./개발%20관련/initial.png)
+![modal화면](./개발%20관련/modal.png)
+![추천예시화면](./개발%20관련/exam_file.svg)
+![모니터링화면](./개발%20관련/monitoring.png)
